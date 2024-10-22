@@ -137,7 +137,7 @@ const updateProduct = async (req, res) => {
   const { name, stock, price } = req.body;
 
   try {
-    const product = await Products.findOne({
+    const product = await product.findOne({
       where: {
         id,
       },
@@ -211,7 +211,9 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    await Products.destroy();
+    await Products.destroy({
+      where: { id },
+    });
 
     res.status(200).json({
       status: "Success",
@@ -241,9 +243,11 @@ const deleteProduct = async (req, res) => {
 };
 
 module.exports = {
-  createProduct,
-  getAllProduct,
-  getProductById,
-  updateProduct,
-  deleteProduct,
+  productController: {
+    createProduct,
+    getAllProduct,
+    getProductById,
+    updateProduct,
+    deleteProduct,
+  },
 };

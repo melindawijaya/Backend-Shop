@@ -1,11 +1,9 @@
 const router = require("express").Router();
+const userController = require("../controllers/userController"); // Make sure this path is correct
 
-const authController = require("../controllers/authController");
-
-// router.post("", shopController.createShop);
-// router.get("", shopController.getAllShop);
-// router.get("/:id", shopController.getShopById);
-// router.patch("/:id", shopController.updateShop);
-// router.delete("/:id", shopController.deleteShop);
+router.get("", userController.findUsers); // Fixed typo from findUser to findUsers
+router.get("/:id", userController.findUserById);
+router.patch("/:id", userController.updateUser);
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;

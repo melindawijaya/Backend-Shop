@@ -13,6 +13,8 @@ const healtcheck = async (req, res) => {
       isSuccess: false,
       data: null,
     });
+
+    functionErrorHandling(400, "No API",null)
   }
 };
 
