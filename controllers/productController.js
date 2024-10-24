@@ -1,4 +1,6 @@
+const { where } = require("sequelize");
 const { Products, Shops } = require("../models");
+const { Op } = require("sequelize");
 
 const createProduct = async (req, res) => {
   const { name, stock, price, shopId } = req.body;
@@ -49,20 +51,37 @@ const createProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
   try {
+    const { productName, stock, price, shopName, adminEmail } = req.query;
+
+    const productCondition = {};
+    if (productName) productCondition.name = { [Op.iLike]: `%${productName}%` };
+    if (stock) productCondition.stock = stock;
+    if (price) productCondition.price = price;
+
+    const shopCondition = {};
+    if (shopName) shopCondition.name = { [Op.iLike]: `%${shopName} %}` };
+
     const products = await Products.findAll({
       include: [
         {
           model: Shops,
           as: "shop",
-        },
+          attributes: ["name", "adminEmail"],
+          where: shopCondition
+        }
       ],
+      attributes: ["name","stock","price"],
+      where : productCondition
     });
+
+    const totalData = products.length;
 
     res.status(200).json({
       status: "Success",
       message: "Success get products data",
       isSuccess: true,
       data: {
+        totalData,
         products,
       },
     });

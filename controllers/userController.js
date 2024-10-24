@@ -1,12 +1,27 @@
+const { where } = require("sequelize");
 const { Users } = require("../models");
+const { Op } = require("sequelize");
 
 const findUsers = async (req, res, next) => {
   try {
-    const users = await Users.findAll();
+    const { userName, age, role } = req.query;
+    
+    const condition = {};
+    if (userName) condition.name = { [Op.iLike]: `%${userName}%` };
+    if (age) condition.age = age;
+    if (role) condition.role = { [Op.iLike]: `%${role}%` };
+
+    const users = await Users.findAll({
+      attributes: ["name", "age", "role"],
+      where: condition
+    });
+
+    const totalData = users.length;
 
     res.status(200).json({
       status: "Success",
       data: {
+        totalData,
         users,
       },
     });
@@ -27,7 +42,25 @@ const findUserById = async (req, res, next) => {
         user,
       },
     });
-  } catch (err) {}
+  } catch (error) {
+    console.log(error.name);
+    if (error.name === "SequelizeValidationError") {
+      const errorMessage = error.errors.map((err) => err.message);
+      return res.status(400).json({
+        status: "Failed",
+        message: errorMessage[0],
+        isSuccess: false,
+        data: null,
+      });
+    }
+
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+      isSuccess: false,
+      data: null,
+    });
+  }
 };
 
 const updateUser = async (req, res, next) => {
