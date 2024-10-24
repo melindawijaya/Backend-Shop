@@ -53,6 +53,9 @@ const getAllProduct = async (req, res) => {
   try {
     const { productName, stock, price, shopName, adminEmail } = req.query;
 
+    const limit = 10;
+    const offset = 0;
+
     const productCondition = {};
     if (productName) productCondition.name = { [Op.iLike]: `%${productName}%` };
     if (stock) productCondition.stock = stock;
@@ -71,7 +74,9 @@ const getAllProduct = async (req, res) => {
         }
       ],
       attributes: ["name","stock","price"],
-      where : productCondition
+      where : productCondition,
+      limit: limit,
+      offset: offset
     });
 
     const totalData = products.length;

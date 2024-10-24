@@ -5,6 +5,9 @@ const { Op } = require("sequelize");
 const findUsers = async (req, res, next) => {
   try {
     const { userName, age, role } = req.query;
+
+    const limit = 10;
+    const offset = 0;
     
     const condition = {};
     if (userName) condition.name = { [Op.iLike]: `%${userName}%` };
@@ -13,8 +16,10 @@ const findUsers = async (req, res, next) => {
 
     const users = await Users.findAll({
       attributes: ["name", "age", "role"],
-      where: condition
-    });
+      where: condition,
+      limit: limit,
+      offset: offset
+    }); 
 
     const totalData = users.length;
 

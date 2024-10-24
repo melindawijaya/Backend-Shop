@@ -53,6 +53,9 @@ const getAllShop = async (req, res) => {
     // jaga query agar tidak bocor
     const { shopName, adminEmail, productName, stock } = req.query;
 
+    const limit = 10;
+    const offset = 0;
+
     const condition = {};
     if (shopName) condition.name = { [Op.iLike]: `%${shopName}%` };
     
@@ -76,6 +79,8 @@ const getAllShop = async (req, res) => {
       ],
       attributes: ["name", "adminEmail"],
       where: condition,
+      limit: limit,
+      offset: offset
     });
 
     const totalData = shops.length;
