@@ -1,108 +1,175 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Shop API",
-      "version": "1.0.0",
-      "description": "API for getting shop data filtered by product name"
-    },
-    "servers": [
-      {
-        "url": "http://localhost:3000/api/v1",
-        "description": "Local server"
-      }
-    ],
-    "paths": {
-      "/shops": {
-        "get": {
-          "summary": "Get shops data",
-          "description": "Retrieve shop data with optional filtering by product name",
-          "parameters": [
-            {
-              "name": "productName",
-              "in": "query",
-              "description": "Filter shops by product name",
-              "required": false,
-              "schema": {
-                "type": "string"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Product API",
+    "description": "API for managing products in the shop",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "Get products data",
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "query",
+            "description": "Filter products by name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalData": { "type": "integer" },
+                        "products": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": { "type": "string" },
+                              "stock": { "type": "integer" },
+                              "price": { "type": "integer" },
+                              "shop": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string" }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Success get shops data",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "example": "Success"
-                      },
-                      "message": {
-                        "type": "string",
-                        "example": "Success get shops data"
-                      },
-                      "isSuccess": {
-                        "type": "boolean",
-                        "example": true
-                      },
-                      "data": {
-                        "type": "object",
-                        "properties": {
-                          "totalData": {
-                            "type": "integer",
-                            "example": 3
-                          },
-                          "shops": {
-                            "type": "array",
-                            "items": {
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new product",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "stock": { "type": "integer" },
+                  "price": { "type": "integer" },
+                  "shopId": { "type": "integer" }
+                },
+                "required": ["name", "stock", "price", "shopId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newProduct": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" },
+                            "stock": { "type": "integer" },
+                            "price": { "type": "integer" },
+                            "shopId": { "type": "integer" },
+                            "createdAt": { "type": "string", "format": "date-time" },
+                            "updatedAt": { "type": "string", "format": "date-time" },
+                            "images": {
+                              "type": "array",
+                              "items": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "Get product by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Product ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" },
+                            "stock": { "type": "integer" },
+                            "price": { "type": "integer" },
+                            "shopId": { "type": "integer" },
+                            "createdAt": { "type": "string", "format": "date-time" },
+                            "updatedAt": { "type": "string", "format": "date-time" },
+                            "images": {
+                              "type": "array",
+                              "items": { "type": "string" }
+                            },
+                            "shop": {
                               "type": "object",
                               "properties": {
-                                "name": {
-                                  "type": "string",
-                                  "example": "Roob Inc"
-                                },
-                                "adminEmail": {
-                                  "type": ["string", "null"],
-                                  "example": null
-                                },
-                                "products": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "name": {
-                                        "type": "string",
-                                        "example": "Practical Soft Pizza"
-                                      },
-                                      "images": {
-                                        "type": "array",
-                                        "items": {
-                                          "type": "string",
-                                          "example": "https://ik.imagekit.io/imamth/Profile-17-1729202156932_ieaMdNeZB.png?updatedAt=1729202158471"
-                                        }
-                                      },
-                                      "stock": {
-                                        "type": "integer",
-                                        "example": 20
-                                      },
-                                      "price": {
-                                        "type": "integer",
-                                        "example": 29111
-                                      }
-                                    }
-                                  }
-                                },
-                                "user": {
-                                  "type": "object",
-                                  "properties": {
-                                    "name": {
-                                      "type": "string",
-                                      "example": "Thelma Hodkiewicz"
-                                    }
-                                  }
-                                }
+                                "id": { "type": "integer" },
+                                "name": { "type": "string" },
+                                "userId": { "type": "integer" },
+                                "createdAt": { "type": "string", "format": "date-time" },
+                                "updatedAt": { "type": "string", "format": "date-time" }
                               }
                             }
                           }
@@ -118,4 +185,4 @@
       }
     }
   }
-  
+}

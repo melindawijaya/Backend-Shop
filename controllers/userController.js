@@ -2,6 +2,53 @@ const { where } = require("sequelize");
 const { Users } = require("../models");
 const { Op } = require("sequelize");
 
+const createUsers = async (req, res) => {
+  const { name, age, role, address } = req.body;
+
+  try {
+    const newUser = await Users.create({
+      name,
+      age,
+      role,
+      address,
+    });
+
+    res.status(201).json({
+      status: "Success",
+      message: "Success create new user",
+      isSuccess: true,
+      data: {
+        newUser,
+      },
+    });
+  } catch (error) {
+    console.log(error.name);
+    if (error.name === "SequelizeValidationError") {
+      const errorMessage = error.errors.map((err) => err.message);
+      return res.status(400).json({
+        status: "Failed",
+        message: errorMessage[0],
+        isSuccess: false,
+        data: null,
+      });
+    } else if (error.name === "SequelizeDatabaseError") {
+      return res.status(400).json({
+        status: "Failed",
+        message: error.message || "Database error",
+        isSuccess: false,
+        data: null,
+      });
+    } else {
+      return res.status(500).json({
+        status: "Failed",
+        message: "An unexpected error occurred",
+        isSuccess: false,
+        data: null,
+      });
+    }
+  }
+};
+
 const findUsers = async (req, res, next) => {
   try {
     const { userName, age, role, page, size } = req.query;
@@ -125,6 +172,7 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
+  createUsers,
   findUsers,
   findUserById,
   updateUser,
