@@ -4,33 +4,43 @@ const { Op } = require("sequelize");
 
 const findUsers = async (req, res, next) => {
   try {
-    const { userName, age, role } = req.query;
-
-    const limit = 10;
-    const offset = 0;
+    const { userName, age, role, page, size } = req.query;
     
     const condition = {};
     if (userName) condition.name = { [Op.iLike]: `%${userName}%` };
     if (age) condition.age = age;
     if (role) condition.role = { [Op.iLike]: `%${role}%` };
 
+    const pageSize = parseInt(size) || 10;
+    const pageNum = parseInt(page) || 1;
+    const offset = (pageNum - 1) * pageSize;
+
+    const totalCount = await Users.count({ where: condition});
+
     const users = await Users.findAll({
       attributes: ["name", "age", "role"],
       where: condition,
-      limit: limit,
-      offset: offset
+      limit: pageSize,
+      offset
     }); 
 
-    const totalData = users.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     res.status(200).json({
       status: "Success",
+      message: "Success get shops data",
+      isSuccess: true,
       data: {
-        totalData,
+        totalData: totalCount,
         users,
+        pagination: {
+          page: pageNum,
+          size: pageSize,
+          totalPages
+        }
       },
     });
-  } catch (err) {}
+  } catch (err) {console.log(err);}
 };
 
 const findUserById = async (req, res, next) => {

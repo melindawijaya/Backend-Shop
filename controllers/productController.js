@@ -1,6 +1,7 @@
 const { where } = require("sequelize");
 const { Products, Shops } = require("../models");
 const { Op } = require("sequelize");
+const { parse } = require("dotenv");
 
 const createProduct = async (req, res) => {
   const { name, stock, price, shopId } = req.body;
@@ -51,10 +52,7 @@ const createProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
   try {
-    const { productName, stock, price, shopName, adminEmail } = req.query;
-
-    const limit = 10;
-    const offset = 0;
+    const { productName, stock, price, shopName, adminEmail, page, size } = req.query;
 
     const productCondition = {};
     if (productName) productCondition.name = { [Op.iLike]: `%${productName}%` };
@@ -63,6 +61,21 @@ const getAllProduct = async (req, res) => {
 
     const shopCondition = {};
     if (shopName) shopCondition.name = { [Op.iLike]: `%${shopName} %}` };
+
+    const pageSize = parseInt(size) || 10;
+    const pageNum = parseInt(page) || 1;
+    const offset = (pageNum - 1) * pageSize; 
+
+    const totalCount = await Products.count({
+      include: [
+        {
+          model: Shops,
+          as: "shop",
+          where: shopCondition  
+        },
+      ],
+      where: productCondition,
+    })
 
     const products = await Products.findAll({
       include: [
@@ -75,19 +88,24 @@ const getAllProduct = async (req, res) => {
       ],
       attributes: ["name","stock","price"],
       where : productCondition,
-      limit: limit,
-      offset: offset
+      limit: pageSize,
+      offset,
     });
 
-    const totalData = products.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     res.status(200).json({
       status: "Success",
       message: "Success get products data",
       isSuccess: true,
       data: {
-        totalData,
+        totalData : totalCount,
         products,
+        pagination: {
+          page: pageNum,
+          size: pageSize,
+          totalPages
+        }
       },
     });
   } catch (error) {
