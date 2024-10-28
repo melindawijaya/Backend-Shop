@@ -1,28 +1,53 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Product API",
-    "description": "API for managing products in the shop",
+    "title": "Shop API",
+    "description": "API documentation for the shop and product system",
     "version": "1.0.0"
   },
+  "tags": [
+    { "name": "Products", "description": "Operations related to products" },
+    { "name": "Shops", "description": "Operations related to shops" },
+    { "name": "Users", "description": "Operations related to users" }
+  ],
   "paths": {
     "/products": {
       "get": {
-        "summary": "Get products data",
+        "tags": ["Products"],
+        "summary": "Get products",
         "parameters": [
           {
             "name": "productName",
             "in": "query",
             "description": "Filter products by name",
             "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "shopName",
+            "in": "query",
+            "description": "Filter products by shop name",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "stock",
+            "in": "query",
+            "description": "Filter products by stock",
+            "required": false,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "description": "Filter products by price",
+            "required": false,
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful response",
+            "description": "Success get products data",
             "content": {
               "application/json": {
                 "schema": {
@@ -62,7 +87,8 @@
         }
       },
       "post": {
-        "summary": "Create new product",
+        "tags": ["Products"],
+        "summary": "Create a new product",
         "requestBody": {
           "required": true,
           "content": {
@@ -82,7 +108,7 @@
         },
         "responses": {
           "200": {
-            "description": "Product created successfully",
+            "description": "Success create new product",
             "content": {
               "application/json": {
                 "schema": {
@@ -102,12 +128,9 @@
                             "stock": { "type": "integer" },
                             "price": { "type": "integer" },
                             "shopId": { "type": "integer" },
-                            "createdAt": { "type": "string", "format": "date-time" },
-                            "updatedAt": { "type": "string", "format": "date-time" },
-                            "images": {
-                              "type": "array",
-                              "items": { "type": "string" }
-                            }
+                            "createdAt": { "type": "string" },
+                            "updatedAt": { "type": "string" },
+                            "images": { "type": "array", "items": { "type": "string" } }
                           }
                         }
                       }
@@ -120,23 +143,43 @@
         }
       }
     },
-    "/products/{id}": {
+    "/shops": {
       "get": {
-        "summary": "Get product by ID",
+        "tags": ["Shops"],
+        "summary": "Get shops",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Product ID"
+            "name": "shopName",
+            "in": "query",
+            "description": "Filter shops by name",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "productName",
+            "in": "query",
+            "description": "Filter shops by product name",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "stock",
+            "in": "query",
+            "description": "Filter shops by product stock",
+            "required": false,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "Filter shops by owner username",
+            "required": false,
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Product data retrieved successfully",
+            "description": "Success get shops data",
             "content": {
               "application/json": {
                 "schema": {
@@ -148,30 +191,210 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "product": {
+                        "totalData": { "type": "integer" },
+                        "shops": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": { "type": "string" },
+                              "adminEmail": { "type": "string" },
+                              "products": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": { "type": "string" },
+                                    "stock": { "type": "integer" },
+                                    "price": { "type": "integer" },
+                                    "images": { "type": "array", "items": { "type": "string" } }
+                                  }
+                                }
+                              },
+                              "user": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string" }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shops"],
+        "summary": "Create a new shop",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "userId": { "type": "integer" }
+                },
+                "required": ["name", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new shop",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newShop": {
                           "type": "object",
                           "properties": {
                             "id": { "type": "integer" },
                             "name": { "type": "string" },
-                            "stock": { "type": "integer" },
-                            "price": { "type": "integer" },
-                            "shopId": { "type": "integer" },
-                            "createdAt": { "type": "string", "format": "date-time" },
-                            "updatedAt": { "type": "string", "format": "date-time" },
-                            "images": {
-                              "type": "array",
-                              "items": { "type": "string" }
-                            },
-                            "shop": {
-                              "type": "object",
-                              "properties": {
-                                "id": { "type": "integer" },
-                                "name": { "type": "string" },
-                                "userId": { "type": "integer" },
-                                "createdAt": { "type": "string", "format": "date-time" },
-                                "updatedAt": { "type": "string", "format": "date-time" }
-                              }
+                            "userId": { "type": "integer" },
+                            "createdAt": { "type": "string" },
+                            "updatedAt": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get users",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "Filter users by username",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "age",
+            "in": "query",
+            "description": "Filter users by age",
+            "required": false,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter users by role",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get users data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalData": { "type": "integer" },
+                        "users": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": { "type": "string" },
+                              "age": { "type": "integer" },
+                              "role": { "type": "string" }
                             }
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "page": { "type": "integer" },
+                            "size": { "type": "integer" },
+                            "totalPages": { "type": "integer" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "age": { "type": "integer" },
+                  "role": { "type": "string" },
+                  "address": { "type": "string" }
+                },
+                "required": ["name", "age", "role", "address"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "isSuccess": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "newUser": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" },
+                            "age": { "type": "integer" },
+                            "role": { "type": "string" },
+                            "address": { "type": "string" },
+                            "createdAt": { "type": "string" },
+                            "updatedAt": { "type": "string" }
                           }
                         }
                       }
