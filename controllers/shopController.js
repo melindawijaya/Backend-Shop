@@ -3,13 +3,13 @@ const { Shops, Products, Users } = require("../models");
 const { Op } = require("sequelize");
 
 const createShop = async (req, res) => {
-  const { name, adminEmail, userId } = req.body;
+  const { name, adminEmail } = req.body;
 
   try {
     const newShop = await Shops.create({
       name,
       adminEmail,
-      userId,
+      userId: req.user.id,
     });
 
     res.status(201).json({
@@ -94,7 +94,8 @@ const getAllShop = async (req, res) => {
         {
           model: Users,
           as: "user",
-          attributes: ["name"]
+          attributes: ["name"],
+          where: userCondition
         },
       ],
       attributes: ["name", "adminEmail"],
@@ -120,7 +121,6 @@ const getAllShop = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     console.log(error.name);
     if (error.name === "SequelizeValidationError") {
       const errorMessage = error.errors.map((err) => err.message);
