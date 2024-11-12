@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     confirmPassword: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isSameAsPassword(value) {
           if (value !== this.password) {

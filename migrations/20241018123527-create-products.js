@@ -16,7 +16,7 @@ module.exports = {
       images: {
         type: Sequelize.ARRAY(Sequelize.TEXT),
         defaultValue: [
-          "https://ik.imagekit.io/imamth/Profile-17-1729202156932_ieaMdNeZB.png?updatedAt=1729202158471",
+          "https://ik.imagekit.io/mfu0uzhwq/Profile-1729136035619_QSrxKFQHs.jpg?updatedAt=1729136040763",
         ],
       },
       stock: {

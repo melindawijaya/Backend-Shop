@@ -7,9 +7,9 @@ module.exports = {
     const users = [];
     for (let i = 0; i < 100; i++) {
       users.push({
-        name: faker.name.fullName(),
+        name: faker.person.fullName(),
         age: faker.number.int({ min: 10, max: 30}),
-        address: faker.address.streetAddress(),
+        address: faker.location.streetAddress(),
         role: faker.helpers.arrayElement(['user', 'admin']),
         createdAt: new Date(),
         updatedAt: new Date(),

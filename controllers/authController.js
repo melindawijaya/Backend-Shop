@@ -4,30 +4,51 @@ const { Auths, Users } = require("../models");
 
 const register = async (req, res, next) => {
   try {
+    const { name, email, password, age, address, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await Users.create({
+      name,
+      email,
+      age,
+      address,
+      role,
+    });
+
+    await Auths.create({
+      userId: newUser.id,
+      password: hashedPassword,
+    });
+
     res.status(201).json({
       status: "Success",
-      data: {},
+      data: {
+        user: newUser,
+      },
     });
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "Failed",
+      message: "Registration failed",
+      isSuccess: false,
+      data: null,
+    });
+  }
 };
 
 const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
+    const user = await Auths.findOne({
+      where: { email: req.body.email },
+      include: [{ model: Users, as: "user" }],
+    });
 
-    const data = await Auths.findOne({
-      include: [
-        {
-          model: Users,
-          as: "user",
-        },
-      ],
-      where :{
-        email,
-      },
-    })
+    console.log(user);
 
-    if(!data) {
+    if (!user) {
       return res.status(404).json({
         status: "Failed",
         message: "Email not registered",
@@ -35,45 +56,58 @@ const login = async (req, res, next) => {
         data: null,
       });
     }
-
-    if(data && bcrypt.compareSync(password, data.password)) {
-      const token = jwt.sign(
-      {
-        id: data.id,
-        username: data.user.name,
-        email: data.email,
-        userId: data.user.id
-      }, 
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_EXPIRED
-      }
-    );
-
-    res.status(200).json({
-      status: "Success",
-      message: "Login success",
-      isSuccess: true,
-      data: {
-        username: data.user.name,
-        token
-      }
-    });
-  } else {
-    res.status(401).json({
-      status: "Failed",
-      message: "Incorrect Password",
-      isSuccess: false,
-      data: null
-    });
-  }
     
+
+    const auth = await Auths.findOne({
+      where: { userId: user.id },
+    });
+
+    if (!auth) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Authentication record not found",
+        isSuccess: false,
+        data: null,
+      });
+    }
+
+    if (bcrypt.compareSync(password, auth.password)) {
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.name,
+          email: user.email,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_EXPIRED,
+        }
+      );
+
+      return res.status(200).json({
+        status: "Success",
+        message: "Login success",
+        isSuccess: true,
+        data: {
+          username: user.name,
+          token,
+        },
+      });
+    } else {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Incorrect password",
+        isSuccess: false,
+        data: null,
+      });
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).json({
       status: "Failed",
-      message: "Login False",
+      message: "Login failed",
       isSuccess: false,
-      data: null
+      data: null,
     });
   }
 };
@@ -86,7 +120,15 @@ const authenticate = async (req, res) => {
         user: req.user,
       },
     });
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "Failed",
+      message: "Authentication failed",
+      isSuccess: false,
+      data: null,
+    });
+  }
 };
 
 module.exports = {
